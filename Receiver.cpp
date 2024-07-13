@@ -10,17 +10,17 @@
 #include <HardwareSerial.h>   //For communicating with the UNO
 
 #define CHANNEL 0     //ESP-NOW communication channel
-#define lSwitch_GF 1  //Limit switch - Girder Front
-#define lSwitch_GB 2  //Limit switch - Girder Back
-#define lSwitch_HR 3  //Limit switch - Hoist Right
-#define lSwitch_HL 4  //Limit switch - Hoist Left
-#define eStop 5       //Emergency stop button
+#define lSwitch_GF 25  //Limit switch - Girder Front
+#define lSwitch_GB 26  //Limit switch - Girder Back
+#define lSwitch_HR 18  //Limit switch - Hoist Right
+#define lSwitch_HL 19  //Limit switch - Hoist Left
+#define eStop 4       //Emergency stop button
 
 HardwareSerial UNOserial(2); //UART2 for serial communication with UNO
 
 String jsonString;
 
-char driveM_dirct;
+unsigned char driveM_dirct;
 int driveM_speed = 0;
 
 //Data to be received
@@ -35,7 +35,7 @@ message mData;
 
 //Callback when data is received
 void receiveCallback(const esp_now_recv_info_t *mac_addr, const uint8_t *data, int data_len) {
-  Serial.print("Data Received!");
+  Serial.println("Data Received!");
   memcpy(&mData, data, sizeof(mData));
 }
 
@@ -90,10 +90,10 @@ void setup() {
 }
 
 void loop() {
-  if(!checkEstop()){
+  //if(!checkEstop()){
     motorData();
     sendJson();
 
-  }
+  //}
   delay(300);
 }
