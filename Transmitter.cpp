@@ -8,8 +8,8 @@
 #include <esp_now.h>
 
 #define CHANNEL 0  //ESP-NOW communication channel
-#define joy1X 25    //Joystick 1 - X axis
-#define joy1Y 26    //Joystick 1 - Y axis
+#define joy1X 32    //Joystick 1 - X axis
+#define joy1Y 33    //Joystick 1 - Y axis
 #define joy2X 18    //Joystick 2 - X axis
 #define joy2Y 19    //Joystick 2 - Y axis
 #define eStop 4    //Emergency stop button
@@ -71,6 +71,16 @@ void loop() {
   mData.JOY1Y = analogRead(joy1Y);
   mData.JOY2X = analogRead(joy2X);
   mData.JOY2Y = analogRead(joy2Y);
+
+  //For debugging only
+  //**************************
+  Serial.println(mData.ESTOP);
+  Serial.println(mData.JOY1X);
+  Serial.println(mData.JOY1Y);
+  Serial.println(mData.JOY2X);
+  Serial.println(mData.JOY2Y);
+  Serial.println();
+  //**************************
   
   esp_now_send(slave.peer_addr, (uint8_t *) &mData, sizeof(mData));
   delay(300);
