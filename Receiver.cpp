@@ -6,21 +6,19 @@
 
 #include <WiFi.h>
 #include <esp_now.h>
-#include <ArduinoJson.h>      //For communicating with the UNO
-#include <HardwareSerial.h>   //For communicating with the UNO
+#include <ArduinoJson.h>     //For communicating with the UNO
+#include <HardwareSerial.h>  //For communicating with the UNO
 
-#define CHANNEL 0     //ESP-NOW communication channel
+#define CHANNEL 0      //ESP-NOW communication channel
 #define lSwitch_GF 25  //Limit switch - Girder Front
 #define lSwitch_GB 26  //Limit switch - Girder Back
 #define lSwitch_HR 18  //Limit switch - Hoist Right
 #define lSwitch_HL 19  //Limit switch - Hoist Left
-#define eStop 4       //Emergency stop button
+#define eStop 4        //Emergency stop button
 
-HardwareSerial UNOserial(2); //UART2 for serial communication with UNO
+HardwareSerial UNOserial(2);  //UART2 for serial communication with UNO
 
-String jsonString;
-
-unsigned char driveM_dirct;
+int driveM_dirct = 0;
 int driveM_speed = 0;
 
 //Data to be received
@@ -40,33 +38,41 @@ void receiveCallback(const esp_now_recv_info_t *mac_addr, const uint8_t *data, i
 }
 
 //Maps joystick values to motors
-void motorData(){
+void motorData() {
   int j1x = mData.JOY1X;
-  if (j1x < 2048){
-    driveM_dirct = 'B';
+  if (j1x < 2500) {
+    driveM_dirct = 66;  //B=66
     driveM_speed = map(j1x, 0, 2047, 255, 0);
-  }
-  else{
-    driveM_dirct = 'F';
+  } else if (j1x > 3000) {
+    driveM_dirct = 70;  //F=70
     driveM_speed = map(j1x, 2048, 4096, 0, 255);
+  } else {
+    driveM_dirct = 0;
+    driveM_speed = 0;
   }
-
-  
 }
 
 //Creates a json message to send to the UNO
-void createJson(){
-  StaticJsonDocument<100> doc;
+void createJson() {
+  StaticJsonDocument<200> doc;
   doc["driveM_dirct"] = driveM_dirct;
   doc["driveM_speed"] = driveM_speed;
 
+  Serial.println("driveM_dirct");
+  Serial.println(driveM_dirct);
+  Serial.println("driveM_speed");
+  Serial.println(driveM_speed);
+
+  String jsonString;
   serializeJson(doc, jsonString);
+
+  UNOserial.println(jsonString);
+  Serial.println("Json sent!");
 }
 
-void sendJson(){
+/*void sendJson(){
   createJson();
-  UNOserial.println(jsonString);
-}
+}*/
 
 //Checks whether the emergency stop is pressed
 int checkEstop() {
@@ -75,7 +81,7 @@ int checkEstop() {
 }
 
 void setup() {
-  UNOserial.begin(9600, SERIAL_8N1, 16, 17); // RX2=16, TX2=17
+  UNOserial.begin(9600, SERIAL_8N1, 16, 17);  // RX2=16, TX2=17
   Serial.begin(115200);
   WiFi.mode(WIFI_AP);
   WiFi.softAP("GCA", "23175", CHANNEL, 0);
@@ -91,8 +97,8 @@ void setup() {
 
 void loop() {
   //if(!checkEstop()){
-    motorData();
-    sendJson();
+  motorData();
+  createJson();
 
   //}
 
@@ -104,10 +110,7 @@ void loop() {
   Serial.println(mData.JOY2X);
   Serial.println(mData.JOY2Y);
   Serial.println();
-
-  Serial.println(jsonString);
-  Serial.println();
   //**************************
 
-  delay(3000);
+  delay(300);
 }
