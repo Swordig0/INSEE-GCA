@@ -95,5 +95,19 @@ void loop() {
     sendJson();
 
   //}
-  delay(300);
+
+  //For debugging only
+  //**************************
+  Serial.println(mData.ESTOP);
+  Serial.println(mData.JOY1X);
+  Serial.println(mData.JOY1Y);
+  Serial.println(mData.JOY2X);
+  Serial.println(mData.JOY2Y);
+  Serial.println();
+
+  Serial.println(jsonString);
+  Serial.println();
+  //**************************
+
+  delay(3000);
 }
