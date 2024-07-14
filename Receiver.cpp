@@ -58,21 +58,12 @@ void createJson() {
   doc["driveM_dirct"] = driveM_dirct;
   doc["driveM_speed"] = driveM_speed;
 
-  Serial.println("driveM_dirct");
-  Serial.println(driveM_dirct);
-  Serial.println("driveM_speed");
-  Serial.println(driveM_speed);
-
   String jsonString;
   serializeJson(doc, jsonString);
 
   UNOserial.println(jsonString);
   Serial.println("Json sent!");
 }
-
-/*void sendJson(){
-  createJson();
-}*/
 
 //Checks whether the emergency stop is pressed
 int checkEstop() {
@@ -101,16 +92,6 @@ void loop() {
   createJson();
 
   //}
-
-  //For debugging only
-  //**************************
-  Serial.println(mData.ESTOP);
-  Serial.println(mData.JOY1X);
-  Serial.println(mData.JOY1Y);
-  Serial.println(mData.JOY2X);
-  Serial.println(mData.JOY2Y);
-  Serial.println();
-  //**************************
 
   delay(300);
 }
