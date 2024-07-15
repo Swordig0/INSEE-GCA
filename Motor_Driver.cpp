@@ -9,21 +9,41 @@
 
 AF_DCMotor motor_drive(1);
 
-const char* driveM_dirct;
+String jsonString;
+
+int driveM_dirct = 0;
 int driveM_speed = 0;
 
 void receiveJson() {
   // Check if data is available to read from the ESP32
   if (Serial.available()) {
-    String jsonString = Serial.readStringUntil('\n');
+    jsonString = Serial.readStringUntil('\n');
     //Parse the json
-    StaticJsonDocument<100> doc;
+    StaticJsonDocument<200> doc;
     DeserializationError error = deserializeJson(doc, jsonString);
 
     if (!error) {
       //Extract values from json
       driveM_dirct = doc["driveM_dirct"];
       driveM_speed = doc["driveM_speed"];
+
+      Serial.println("driveM_dirct");
+      Serial.println(driveM_dirct);
+      Serial.println("driveM_speed");
+      Serial.println(driveM_speed);
+      Serial.println();
+
+      motor_drive.setSpeed(driveM_speed);
+
+      if (driveM_dirct == 70) {
+        motor_drive.run(FORWARD);
+      } else if (driveM_dirct == 66) {
+        motor_drive.run(BACKWARD);
+      } else {
+        motor_drive.run(RELEASE);
+      }
+    } else {
+      Serial.println("Failed to parse JSON");
     }
   }
 }
@@ -36,18 +56,15 @@ void setup() {
 void loop() {
   void receiveJson();
 
-  motor_drive.setSpeed(driveM_speed);
+  //For debugging only
+  //**************************
+  //Serial.println(jsonString);
+  //Serial.println();
 
-  if(driveM_dirct == 'F'){
-    motor_drive.run(FORWARD);
-  }
-  else if(driveM_dirct == 'B'){
-    motor_drive.run(BACKWARD);
-  }
-  else{
-    motor_drive.run(RELEASE);
-  }
 
-  delay(100);
-  
+  //**************************
+
+
+
+  delay(300);
 }
